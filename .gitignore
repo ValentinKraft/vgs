@@ -1,0 +1,11 @@
+*.pyc
+.vscode
+output
+_output_
+build
+diff_rasterization/diff_rast.egg-info
+diff_rasterization/dist
+tensorboard_3d
+screenshots
+_scene_/
+_input_/
