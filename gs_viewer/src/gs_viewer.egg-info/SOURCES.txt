@@ -1,0 +1,16 @@
+README.txt
+pyproject.toml
+src/gs_viewer/__init__.py
+src/gs_viewer/__main__.py
+src/gs_viewer/app.py
+src/gs_viewer/camera.py
+src/gs_viewer/ply_loader.py
+src/gs_viewer/render.py
+src/gs_viewer/transfer_function.py
+src/gs_viewer/viewer.py
+src/gs_viewer.egg-info/PKG-INFO
+src/gs_viewer.egg-info/SOURCES.txt
+src/gs_viewer.egg-info/dependency_links.txt
+src/gs_viewer.egg-info/entry_points.txt
+src/gs_viewer.egg-info/requires.txt
+src/gs_viewer.egg-info/top_level.txt

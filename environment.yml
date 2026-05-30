@@ -1,0 +1,31 @@
+# SET DISTUTILS_USE_SDK=1
+# conda env create --file environment.yml
+# conda activate avis_gaussian_splatting
+
+# CUDA 12.6
+# PyTorch 2.7.0
+# pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 --index-url https://download.pytorch.org/whl/cu126
+
+name: avis_gaussian_splatting
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - ninja
+  - tqdm
+  - opencv
+  - joblib
+  - pytorch=2.7.0
+  - torchvision=0.22.0
+  - torchaudio=2.7.0
+  - pytorch-cuda=12.6
+  - nibabel
+  - pip
+  - pip:
+    - -e submodules/diff-gaussian-rasterization
+    - -e submodules/simple-knn
+    - -e submodules/fused-ssim
+    - opencv-python

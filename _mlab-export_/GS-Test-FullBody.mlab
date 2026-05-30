@@ -1,0 +1,1123 @@
+// MDL v1 utf8
+mevislabVersion = 4.1.70.498
+network {
+  watchlist = ""
+}
+module RunPythonScript {
+  internal {
+    frame = "1717 481 232 64"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "290 144 836 989"
+        relativePosition = "-0.1312 -0.3741"
+        sizeHint = "628 303"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = ExportForCinematicGaussians
+    in0 = ""
+    in1 = ""
+    in2 = ""
+    in3 = ""
+    in4 = ""
+    in5 = ""
+    in6 = ""
+    in7 = ""
+    in8 = ""
+    in9 = ""
+    inBaseComment = inBase
+    inComment0 = in0
+    inComment1 = in1
+    inComment2 = in2
+    inComment3 = in3
+    inComment4 = in4
+    inComment5 = in5
+    inComment6 = in6
+    inComment7 = in7
+    inComment8 = in8
+    inComment9 = in9
+    autoUpdate = TRUE
+    autoApply0 = TRUE
+    autoApply1 = TRUE
+    autoApply2 = TRUE
+    autoApply3 = TRUE
+    autoApply4 = TRUE
+    autoApply5 = TRUE
+    autoApply6 = TRUE
+    autoApply7 = TRUE
+    autoApply8 = TRUE
+    autoApply9 = TRUE
+    out0 = ""
+    out1 = ""
+    out2 = ""
+    out3 = ""
+    out4 = ""
+    out5 = ""
+    out6 = ""
+    out7 = ""
+    out8 = ""
+    out9 = ""
+    outComment0 = out0
+    outComment1 = out1
+    outComment2 = out2
+    outComment3 = out3
+    outComment4 = out4
+    outComment5 = out5
+    outComment6 = out6
+    outComment7 = out7
+    outComment8 = out8
+    outComment9 = out9
+    initCode = "# For backward compatibility, set up CTX as alias for ctx
+CTX = ctx # ctx is the network's context, not RunPythonScript's"
+    wakeUpCode = ""
+    code = "*import random
+import os
+import json
+import numpy as np
+
+extent = 1000
+output_path = "C:/DEV/TESTS/gs/cinematic-gaussians/scene"
+camera_angle_x_deg = 45.0  # Horizontaler Öffnungswinkel in Grad
+transforms = {
+    "camera_angle_x": np.deg2rad(camera_angle_x_deg),
+    "w": 2048,
+    "h": 2048,
+    "frames": []
+}
+
+for i in range(50):
+  x = random.randint(-extent,extent)
+  y = random.randint(-extent,extent)
+  z = random.randint(-extent,extent)
+  ctx.field("RotateAtTarget.inPosition").setValue([x,y,z])
+  ctx.field("RotateAtTarget.update").touch()
+  ctx.field("OffscreenRenderer.update").touch()
+  ctx.field("ImageSave.filename").setValue(f"{output_path}/images/{i}.jpg")
+  ctx.field("ImageSave.save").touch()
+  
+  # export camera pose data
+  view = ctx.field("SoCameraAccess.viewingMatrix").value
+  view_matrix = np.array(view).reshape((4, 4))
+  world_matrix = np.linalg.inv(view_matrix).transpose()
+  
+  #print("Translation =", world_matrix[:3, 3])
+
+  transforms["frames"].append({
+        "file_path": f"{i}.jpg",  # relativer Pfad im Zielrepo
+        "transform_matrix": world_matrix.tolist()
+    })
+
+
+# === JSON schreiben ===
+with open(os.path.join(output_path, "transforms.json"), "w") as f:
+    json.dump(transforms, f, indent=4)
+
+print(f"data exported to {output_path}")*"
+    finalizeCode = ""
+    showFields = FALSE
+    showInitCode = FALSE
+    showWakeUpCode = FALSE
+    showCode = TRUE
+    showFinalizeCode = FALSE
+    showConsole = FALSE
+  }
+}
+module RunPythonScript {
+  internal {
+    frame = "1721 561 160 64"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "673 202 947 1056"
+        relativePosition = "-0.1666 -0.3542"
+        sizeHint = "628 303"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = ExportForGS
+    in0 = ""
+    in1 = ""
+    in2 = ""
+    in3 = ""
+    in4 = ""
+    in5 = ""
+    in6 = ""
+    in7 = ""
+    in8 = ""
+    in9 = ""
+    inBaseComment = inBase
+    inComment0 = in0
+    inComment1 = in1
+    inComment2 = in2
+    inComment3 = in3
+    inComment4 = in4
+    inComment5 = in5
+    inComment6 = in6
+    inComment7 = in7
+    inComment8 = in8
+    inComment9 = in9
+    autoUpdate = TRUE
+    autoApply0 = TRUE
+    autoApply1 = TRUE
+    autoApply2 = TRUE
+    autoApply3 = TRUE
+    autoApply4 = TRUE
+    autoApply5 = TRUE
+    autoApply6 = TRUE
+    autoApply7 = TRUE
+    autoApply8 = TRUE
+    autoApply9 = TRUE
+    out0 = ""
+    out1 = ""
+    out2 = ""
+    out3 = ""
+    out4 = ""
+    out5 = ""
+    out6 = ""
+    out7 = ""
+    out8 = ""
+    out9 = ""
+    outComment0 = out0
+    outComment1 = out1
+    outComment2 = out2
+    outComment3 = out3
+    outComment4 = out4
+    outComment5 = out5
+    outComment6 = out6
+    outComment7 = out7
+    outComment8 = out8
+    outComment9 = out9
+    initCode = "# For backward compatibility, set up CTX as alias for ctx
+CTX = ctx # ctx is the network's context, not RunPythonScript's"
+    wakeUpCode = ""
+    code = "*import random
+import os
+import json
+import numpy as np
+
+from scipy.spatial.transform import Rotation as R
+
+out_path = "C:/DEV/TESTS/gs/gaussian-splatting/_scene_"
+transforms = {
+    "camera_angle_x": 0.785398,
+    "w": 1024,
+    "h": 1024,
+    "frames": []
+}
+
+def quaternion_from_matrix(matrix):
+    return R.from_matrix(matrix[:3, :3]).as_quat()  # x, y, z, w
+    
+def access_image(node):
+    image = ctx.field(node).image()
+    if not image:
+        print("Kein Bild gefunden.")
+        return
+
+    # Hole gesamten Bildbereich (Tile)
+    tile = image.getTile((0, 0, 0, 0, 0, 0), image.imageExtent())
+    if tile is None:
+        print("Tile nicht gefunden.")
+        return
+
+    return image, tile
+    
+def generate_pca_covariances(voxel_coords, arr, spacing, neighborhood_size=3):
+    covariances = []
+    rotations = []
+    scalings = []
+
+    # Pad array to handle edge cases
+    padded = np.pad(arr, neighborhood_size, mode='constant', constant_values=0)
+    offset = neighborhood_size
+
+    for coord in voxel_coords:
+        z, y, x = coord
+        # Local neighborhood window
+        z0, z1 = z, z + 2 * neighborhood_size + 1
+        y0, y1 = y, y + 2 * neighborhood_size + 1
+        x0, x1 = x, x + 2 * neighborhood_size + 1
+
+        local_patch = padded[z0:z1, y0:y1, x0:x1]
+        # Get non-zero voxels as weighted points
+        local_points = []
+        for dz in range(local_patch.shape[0]):
+            for dy in range(local_patch.shape[1]):
+                for dx in range(local_patch.shape[2]):
+                    val = local_patch[dz, dy, dx]
+                    if val > 0:
+                        # Voxel position in original array space
+                        pz = (z + dz - neighborhood_size) * spacing[2]
+                        py = (y + dy - neighborhood_size) * spacing[1]
+                        px = (x + dx - neighborhood_size) * spacing[0]
+                        local_points.append([px, py, pz])
+
+        local_points = np.array(local_points)
+        if local_points.shape[0] < 3:
+            # Not enough points for PCA
+            covariances.append(np.eye(3))
+            rotations.append(np.eye(3))
+            scalings.append(np.array([1, 1, 1]))
+            continue
+
+        # PCA: subtract mean, compute SVD
+        mean = np.mean(local_points, axis=0)
+        centered = local_points - mean
+        U, S, Vt = np.linalg.svd(centered, full_matrices=False)
+        rotation = Vt.T  # columns are principal axes
+        scaling = S / np.sum(S)  # normalize scaling for visualization
+
+        # Covariance can be reconstructed as: rotation @ diag(scaling) @ rotation.T
+        covariances.append(rotation @ np.diag(scaling**2) @ rotation.T)
+        rotations.append(rotation)
+        scalings.append(scaling)
+
+    return covariances, rotations, scalings
+    
+def generate_weighted_splats_from_image(num_points=5000, output_path="points3D.txt"):
+  
+    output_path += "/sparse/0/points3D.txt"
+    
+    image, tile = access_image("Vesselness.output0")
+    dicom_img, dicom_tile = access_image("SubImage.output0")
+
+    # In NumPy-Array umwandeln
+    arr = np.array(tile, dtype=np.float32)
+    
+    # Falls zusätzliche Dimensionen existieren, diese entfernen
+    while arr.ndim > 3:
+      arr = arr[0]
+
+    # Bildgrößen und Weltinformationen
+    dims = image.imageExtent()[1:4]  # (x,y,z)
+    spacing = image.voxelSize()
+    print(f"Spacing: {spacing}")
+    m = image.voxelToWorldMatrix()#.getTranslation()
+    origin = [m[0][3],m[1][3],m[2][3]]
+    print(f"Origin: {origin}")
+
+    # Wahrscheinlichkeitsverteilung erstellen (z. B. Werte > 0)
+    arr_flat = arr.flatten()
+    arr_flat[arr_flat < 0] = 0  # nur positive Werte erlauben
+    total = np.sum(arr_flat)
+    if total == 0:
+        print("Alle Bildwerte sind 0.")
+        return
+    probs = arr_flat / total
+
+    # Indexpositionen für Sampling
+    all_indices = np.arange(len(arr_flat))
+
+    # Ziehe Indizes gemäß Gewichtung
+    chosen_indices = np.random.choice(all_indices, size=num_points, replace=False, p=probs)
+
+    # Berechne Voxel-Koordinaten (z,y,x Reihenfolge beachten!)
+    coords = np.unravel_index(chosen_indices, arr.shape)
+    voxel_coords = np.stack(coords, axis=-1)  # (z, y, x)
+    
+    covs, rots, scales = generate_pca_covariances(voxel_coords, arr, spacing)
+
+    # points3D.txt schreiben
+    with open(output_path, "w") as f:
+        f.write("# 3D point list with one line per point:\\n")
+        f.write("# POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX)\\n")
+
+        for i, (z, y, x) in enumerate(voxel_coords, 1):
+            # Weltkoordinaten berechnen
+            wx = (origin[0] + x * spacing[0] ) / 100.0
+            wy = (origin[1] + y * spacing[1] ) / -100.0
+            wz = (origin[2] + z * spacing[2] ) / -100.0
+            #wx = random.uniform(-0.2,0.2)
+            #wy = random.uniform(-0.2,0.2)
+            #wz = random.uniform(-0.2,0.2)
+
+            # Farbe zufällig oder abhängig vom Bildwert
+            #r = random.randint(100, 255)
+            #g = random.randint(100, 255)
+            #b = random.randint(100, 255)
+            r = dicom_tile[0,0,0,z,y,x]
+            g = dicom_tile[0,0,0,z,y,x]
+            b = dicom_tile[0,0,0,z,y,x]
+
+            f.write(f"{i} {wx:.6f} {wy:.6f} {wz:.6f} {r} {g} {b} 0.0 1 1 2 1\\n")
+
+    print(f"[✓] {num_points} gewichtete Punkte aus Bild gespeichert nach: {output_path}")
+
+def render_images_and_generate_cameras_txt(num_imgs=100, output_path="", extent=100):
+  
+  image_width = transforms["w"]
+  image_height = transforms["h"]
+  focal_length = (image_width / 2) / np.tan(transforms["camera_angle_x"] / 2)
+  camera_id = 1
+  
+  # render random cams and render images
+  with open(os.path.join(output_path+"/sparse/0", "images.txt"), "w") as f:
+    
+    f.write("# Image list with two lines of data per image:\\n")
+    f.write("#   IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, IMAGE_NAME\\n")
+    f.write("#   POINTS2D[] as (X, Y, POINT3D_ID)\\n")
+
+    for i in range(num_imgs):
+      #x = random.randint(-extent,extent)
+      #y = random.randint(-extent,extent)
+      #z = random.randint(-extent,extent)
+      
+      radius = extent
+      theta = random.uniform(0, 2 * np.pi)       # Azimut
+      phi = random.uniform(0.2 * np.pi, 0.8 * np.pi)  # Polarwinkel, um nicht nur oben/unten zu landen
+
+      x = radius * np.sin(phi) * np.cos(theta)
+      y = radius * np.sin(phi) * np.sin(theta)
+      z = radius * np.cos(phi)
+      
+      ctx.field("RotateAtTarget.inPosition").setValue([x,y,z])
+      ctx.field("RotateAtTarget.update").touch()
+      ctx.field("OffscreenRenderer.update").touch()
+      ctx.field("ImageSave.filename").setValue(f"{output_path}/images/{i}.jpg")
+      ctx.field("ImageSave.save").touch()
+
+      rot = ctx.field("RotateAtTarget.outQuaternionRotation").value
+      
+      # Original Quaternion von Kamera zu Welt
+      #q_wc = [rot[3], rot[0], rot[1], rot[2]]
+      r_wc = R.from_quat([rot[0], -rot[1], -rot[2], rot[3]])  # [x, y, z, w]
+      
+      r_cw = r_wc.inv()
+      
+      qx, qy, qz, qw = r_cw.as_quat()
+
+      # Kamerazentrum
+      C = np.array([x, -y, -z])
+      t = -r_cw.as_matrix() @ C
+      
+      f.write(f"{i+1} {qw} {qx} {qy} {qz} {t[0]/10.0} {t[1]/10.0} {t[2]/10.0} {camera_id} {i}.jpg\\n")
+  
+  print(f"data exported to {output_path}")
+  
+##############################################
+
+generate_weighted_splats_from_image(
+    num_points=100000,
+    output_path=out_path
+)
+render_images_and_generate_cameras_txt(100,out_path,70)*"
+    finalizeCode = ""
+    showFields = FALSE
+    showInitCode = FALSE
+    showWakeUpCode = FALSE
+    showCode = TRUE
+    showFinalizeCode = FALSE
+    showConsole = FALSE
+  }
+}
+module RunPythonScript {
+  internal {
+    frame = "1717 657 184 64"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1432 338 826 981"
+        relativePosition = "0.0363 -0.2565"
+        sizeHint = "628 303"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = ExportRandomPoints
+    in0 = ""
+    in1 = ""
+    in2 = ""
+    in3 = ""
+    in4 = ""
+    in5 = ""
+    in6 = ""
+    in7 = ""
+    in8 = ""
+    in9 = ""
+    inBaseComment = inBase
+    inComment0 = in0
+    inComment1 = in1
+    inComment2 = in2
+    inComment3 = in3
+    inComment4 = in4
+    inComment5 = in5
+    inComment6 = in6
+    inComment7 = in7
+    inComment8 = in8
+    inComment9 = in9
+    autoUpdate = TRUE
+    autoApply0 = TRUE
+    autoApply1 = TRUE
+    autoApply2 = TRUE
+    autoApply3 = TRUE
+    autoApply4 = TRUE
+    autoApply5 = TRUE
+    autoApply6 = TRUE
+    autoApply7 = TRUE
+    autoApply8 = TRUE
+    autoApply9 = TRUE
+    out0 = ""
+    out1 = ""
+    out2 = ""
+    out3 = ""
+    out4 = ""
+    out5 = ""
+    out6 = ""
+    out7 = ""
+    out8 = ""
+    out9 = ""
+    outComment0 = out0
+    outComment1 = out1
+    outComment2 = out2
+    outComment3 = out3
+    outComment4 = out4
+    outComment5 = out5
+    outComment6 = out6
+    outComment7 = out7
+    outComment8 = out8
+    outComment9 = out9
+    initCode = "# For backward compatibility, set up CTX as alias for ctx
+CTX = ctx # ctx is the network's context, not RunPythonScript's"
+    wakeUpCode = ""
+    code = "*import random
+
+def generate_random_colmap_points3d(
+    num_points: int = 1000,
+    output_path: str = "points3D.txt",
+    xyz_range: float = 10.0,
+    default_error: float = 0.0
+):
+    with open(output_path, 'w') as f:
+        f.write("# 3D point list with one line per point:\\n")
+        f.write("# POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX)\\n")
+
+        for point_id in range(1, num_points + 1):
+            # Zufällige Koordinaten im gewählten Bereich
+            x = random.uniform(-xyz_range, xyz_range)
+            y = random.uniform(-xyz_range, xyz_range)
+            z = random.uniform(-xyz_range, xyz_range)
+
+            # Zufällige Farbe (COLMAP erwartet 0–255)
+            r = random.randint(0, 255)
+            g = random.randint(0, 255)
+            b = random.randint(0, 255)
+
+            # Dummy-Track: referenziert Bild-ID 1 und Punktindex 0
+            track = "1 0"
+
+            line = f"{point_id} {x} {y} {z} {r} {g} {b} {default_error} {track}\\n"
+            f.write(line)
+
+    print(f"COLMAP points3D.txt mit {num_points} Punkten gespeichert unter: {output_path}")
+
+
+
+generate_random_colmap_points3d(
+    num_points=5000,
+    output_path="C:/DEV/TESTS/gs/_scene_/sparse/0/points3D.txt",
+    xyz_range=1.0
+)*"
+    finalizeCode = ""
+    showFields = FALSE
+    showInitCode = FALSE
+    showWakeUpCode = FALSE
+    showCode = TRUE
+    showFinalizeCode = FALSE
+    showConsole = FALSE
+  }
+}
+module RunPythonScript {
+  internal {
+    frame = "1721 737 160 64"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "398 185 1022 1143"
+        relativePosition = "-0.2358 -0.3664"
+        sizeHint = "628 303"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = ExportMaskPoints
+    in0 = ""
+    in1 = ""
+    in2 = ""
+    in3 = ""
+    in4 = ""
+    in5 = ""
+    in6 = ""
+    in7 = ""
+    in8 = ""
+    in9 = ""
+    inBaseComment = inBase
+    inComment0 = in0
+    inComment1 = in1
+    inComment2 = in2
+    inComment3 = in3
+    inComment4 = in4
+    inComment5 = in5
+    inComment6 = in6
+    inComment7 = in7
+    inComment8 = in8
+    inComment9 = in9
+    autoUpdate = TRUE
+    autoApply0 = TRUE
+    autoApply1 = TRUE
+    autoApply2 = TRUE
+    autoApply3 = TRUE
+    autoApply4 = TRUE
+    autoApply5 = TRUE
+    autoApply6 = TRUE
+    autoApply7 = TRUE
+    autoApply8 = TRUE
+    autoApply9 = TRUE
+    out0 = ""
+    out1 = ""
+    out2 = ""
+    out3 = ""
+    out4 = ""
+    out5 = ""
+    out6 = ""
+    out7 = ""
+    out8 = ""
+    out9 = ""
+    outComment0 = out0
+    outComment1 = out1
+    outComment2 = out2
+    outComment3 = out3
+    outComment4 = out4
+    outComment5 = out5
+    outComment6 = out6
+    outComment7 = out7
+    outComment8 = out8
+    outComment9 = out9
+    initCode = "# For backward compatibility, set up CTX as alias for ctx
+CTX = ctx # ctx is the network's context, not RunPythonScript's"
+    wakeUpCode = ""
+    code = "*import random
+import numpy as np
+
+def generate_weighted_splats_from_image(num_points=5000, output_path="points3D.txt"):
+    image = ctx.field("Vesselness.output0").image()
+    if not image:
+        print("Kein Bild gefunden.")
+        return
+
+    # Hole gesamten Bildbereich (Tile)
+    tile = image.getTile((0, 0, 0, 0, 0, 0), image.imageExtent())
+    if tile is None:
+        print("Tile nicht gefunden.")
+        return
+
+    # In NumPy-Array umwandeln
+    arr = np.array(tile, dtype=np.float32)
+    
+    # Falls zusätzliche Dimensionen existieren, diese entfernen
+    while arr.ndim > 3:
+      arr = arr[0]
+
+    # Bildgrößen und Weltinformationen
+    dims = image.imageExtent()[1:4]  # (x,y,z)
+    spacing = image.voxelSize()
+    print(f"Spacing: {spacing}")
+    m = image.voxelToWorldMatrix()#.getTranslation()
+    origin = [m[0][3],m[1][3],m[2][3]]
+    print(f"Origin: {origin}")
+
+    # Wahrscheinlichkeitsverteilung erstellen (z. B. Werte > 0)
+    arr_flat = arr.flatten()
+    arr_flat[arr_flat < 0] = 0  # nur positive Werte erlauben
+    total = np.sum(arr_flat)
+    if total == 0:
+        print("Alle Bildwerte sind 0.")
+        return
+    probs = arr_flat / total
+
+    # Indexpositionen für Sampling
+    all_indices = np.arange(len(arr_flat))
+
+    # Ziehe Indizes gemäß Gewichtung
+    chosen_indices = np.random.choice(all_indices, size=num_points, replace=False, p=probs)
+
+    # Berechne Voxel-Koordinaten (z,y,x Reihenfolge beachten!)
+    coords = np.unravel_index(chosen_indices, arr.shape)
+    voxel_coords = np.stack(coords, axis=-1)  # (z, y, x)
+
+    # points3D.txt schreiben
+    with open(output_path, "w") as f:
+        f.write("# 3D point list with one line per point:\\n")
+        f.write("# POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX)\\n")
+
+        for i, (z, y, x) in enumerate(voxel_coords, 1):
+            # Weltkoordinaten berechnen
+            wx = (origin[0] + x) /-1000.0 * spacing[0]
+            wy = (origin[1] + y) /-1000.0 * spacing[1]
+            wz = (origin[2] + z) /-1000.0 * spacing[2]
+
+            # Farbe zufällig oder abhängig vom Bildwert
+            r = random.randint(0, 255)
+            g = random.randint(0, 255)
+            b = random.randint(0, 255)
+
+            f.write(f"{i} {wx:.6f} {wy:.6f} {wz:.6f} {r} {g} {b} 0.0 1 0\\n")
+
+    print(f"[✓] {num_points} gewichtete Punkte aus Bild gespeichert nach: {output_path}")
+
+
+
+generate_weighted_splats_from_image(
+    num_points=5000,
+    output_path="C:/DEV/TESTS/gs/_scene_/sparse/0/points3D.txt"
+)*"
+    finalizeCode = ""
+    showFields = FALSE
+    showInitCode = FALSE
+    showWakeUpCode = FALSE
+    showCode = TRUE
+    showFinalizeCode = FALSE
+    showConsole = FALSE
+  }
+}
+module gaussian_splatting_export {
+  internal {
+    frame = "925 725 184 56"
+    moduleGroupName = ""
+    localMacro = 1
+    windows {
+      window _default {
+        geometry = "475 352 492 238"
+        relativePosition = "-0.2904 -0.2464"
+        sizeHint = "248 206"
+        wasOpen = yes
+      }
+    }
+  }
+  fields {
+    instanceName = gaussian_splatting_export
+    numPoints = 100000
+    numImages = 500
+    outputPath = "C:\\DEV\\TESTS\\gs\\_SCENES_\\_scene_"
+    smartInit = FALSE
+    renderOnly = TRUE
+    renderResolution = "1024 1024"
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "1181 1157 120 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1502 613 420 274"
+        relativePosition = "-0.0023 -0.0589"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/ct.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "1333 1157 184 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "436 677 438 274"
+        relativePosition = "-0.3096 -0.0129"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI1
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/total-segmentator-masks-binary3.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module Arithmetic2 {
+  internal {
+    frame = "1321 917 96 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1541 700 353 97"
+        relativePosition = "-0.0006 0.0036"
+        sizeHint = "353 97"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = Arithmetic2
+    function = Multiply
+    outputImageSize = InvalidateOutputIfSizesDiffer
+    constant = 0
+    autoReplicate = FALSE
+  }
+}
+module View3D {
+  internal {
+    frame = "1353 717 144 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1970 278 1518 894"
+        relativePosition = "0.2933 -0.2996"
+        sizeHint = "1005 629"
+        wasOpen = yes
+      }
+    }
+  }
+  fields {
+    instanceName = View3D
+    autoViewAll = TRUE
+    inventorInputOn = TRUE
+    inventorOutputOn = FALSE
+    lutType = Ramp
+    rendererType = RayCaster
+    currentTimePoint = 0
+    staticSamplingRate = 1
+    quality = 1
+    filterVolumeData = FilterLinear
+    lutEditorColorPoints = "[ 0 0 0 0, 4095 1 1 1 ]"
+    lutEditorAlphaPoints = "[ 0 0, 4095 1 ]"
+    lutEditorRelativeLut = FALSE
+    lutEditorColorInterpolation = InterpolateRGB
+    lutEditorAlphaFactor = 1
+    orientationProjectionType = PERSPECTIVE
+    orientationLocation = LOWER_RIGHT
+    orientationOn = FALSE
+    orientationModel = CUBE
+    greyCenter = 0.134999975562096
+    greyWidth = 0.775000154972076
+    alphaFactor = 1
+    colorFactor = "1 1 1"
+    camType = TRUE
+    camPosition = "34.4315414428711 -543.337524414063 -261.245208740234"
+    camOrientation = "0.998508870601654 0.0530900880694389 0.0127090234309435 1.68768000602722"
+    initialCameraOrientation = CAMERA_KEEP_AS_IS
+    camFar = 602.14197
+    camNear = 218.34415
+    camFocal = 410.05151
+    camHeight = 0.78539801
+    decoration = FALSE
+    annotations = FALSE
+    background = FALSE
+    mode = VolumeRendering
+    interactiveQuality = High
+  }
+  internalFields {
+    renderer.gradientQuality = GradientQualityHighest
+    renderer.enhancementAlphaMix = 0.25
+    renderer.boundaryEnhancement = FALSE
+    renderer.boundaryEnhancementFactor = 1
+    renderer.boundaryEnhancementExponent = 1
+    renderer.boundaryEnhancementGradientBias = 0
+    renderer.silhouetteEnhancement = FALSE
+    renderer.silhouetteEnhancementExponent = 1
+    renderer.silhouetteEnhancementFactor = 1
+    renderer.toneShading = FALSE
+    renderer.toneShadingWarmColor = "0.67451000213623 0.533333003520966 0.141176000237465"
+    renderer.toneShadingColdColor = "0 0 0.400000005960464"
+    renderer.toneShadingWarmDiffuse = 0.60000002
+    renderer.toneShadingColdDiffuse = 0.2
+    renderer.toneShadingAngle = 45
+    renderer.materialAmbient = 0.63
+    renderer.materialDiffuse = 1
+    renderer.materialSpecular = 1
+    renderer.materialSpecularity = 32
+    renderer.light1Enabled = FALSE
+    renderer.light1DiffuseIntensity = 1
+    renderer.light1SpecularIntensity = 1
+    renderer.light1Color = "1 1 1"
+    renderer.light1PolarPhi = 45
+    renderer.light1PolarRho = 0
+    renderer.light2Enabled = FALSE
+    renderer.light2DiffuseIntensity = 1
+    renderer.light2SpecularIntensity = 1
+    renderer.light2Color = "1 1 1"
+    renderer.light2PolarPhi = 0
+    renderer.light2PolarRho = 0
+    renderer.light3Enabled = FALSE
+    renderer.light3DiffuseIntensity = 1
+    renderer.light3SpecularIntensity = 1
+    renderer.light3Color = "1 1 1"
+    renderer.light3PolarPhi = -45
+    renderer.light3PolarRho = 0
+    renderer.sizeOutputX = 512
+    renderer.sizeOutputY = 512
+    renderer.sizeOutputZ = 266
+    renderer.subVolumeStartX = 0
+    renderer.subVolumeStartY = 0
+    renderer.subVolumeStartZ = 0
+    renderer.subVolumeEndX = 512
+    renderer.subVolumeEndY = 512
+    renderer.subVolumeEndZ = 266
+    clip.hideGeometry = FALSE
+    clip.on = FALSE
+    clip.left = FALSE
+    clip.right = FALSE
+    clip.top = FALSE
+    clip.bottom = FALSE
+    clip.rear = FALSE
+    clip.front = FALSE
+    clip.translation0 = "1 0 0"
+    clip.translation1 = "-1 0 0"
+    clip.translation2 = "0 1 0"
+    clip.translation3 = "0 -1 0"
+    clip.translation4 = "0 0 1"
+    clip.translation5 = "0 0 -1"
+    clip.rotation0 = "0 0 0.999999940395355 1.57079994678497"
+    clip.rotation1 = "0 0 -0.999999940395355 1.57079994678497"
+    clip.rotation2 = "0 0 -1 3.1415901184082"
+    clip.rotation3 = "0 0 1 0"
+    clip.rotation4 = "-0.999999940395355 0 0 1.57079994678497"
+    clip.rotation5 = "0.999999940395355 0 0 1.57079994678497"
+  }
+}
+module MinMaxScan {
+  internal {
+    frame = "1533 941 152 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1490 591 472 314"
+        relativePosition = "0.0017 -0.0747"
+        sizeHint = "449 314"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = MinMaxScan
+    updateMode = AutoUpdate
+    typeSelect = "Proposed Data Type"
+    preferredIntType = PreferUnsigned
+  }
+}
+module SoLUTEditor {
+  internal {
+    frame = "1453 845 104 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "762 809 513 459"
+        relativePosition = "-0.2038 0.0819"
+        sizeHint = "513 459"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = SoLUTEditor
+    rangeMin = 0
+    rangeMax = 2392
+    viewMin = 0
+    viewMax = 2392
+    window = 1
+    level = 0.5
+    allowNewPoints = TRUE
+    updateLutWhileDragging = TRUE
+    relativeLut = FALSE
+    colorInterpolation = InterpolateRGB
+    colorPoints = "[ 0 0 0 0, 0.00239200005307794 0 0 0, 294.016662597656 0.17291584610939 0.17291584610939 0.17291584610939, 2392 1 1 1 ]"
+    alphaPoints = "[ 0 0, 0.00239200005307794 0, 294.016662597656 0.0736196339130402, 2392 1 ]"
+    alphaFactor = 0.80000001
+    newRangeMin = 0
+    newRangeMax = 3085
+    newRangeMode = ClipFormerLUT
+    colorEditorHeight = 24
+    showColorEditor = TRUE
+    showAlphaEditor = TRUE
+    markerRadius = 4
+    selectedMarkerRadius = 6
+    snapMarkerRadius = 10
+    alphaLineWidth = 2
+    backgroundColor = "0.800000011920929 0.800000011920929 0.800000011920929"
+    marginColor = "0.830999970436096 0.815999984741211 0.783999979496002"
+    borderColor = "0 0 0"
+    alphaLineColor = "0 0 0"
+    histogramColor = "0.400000005960464 0.400000005960464 0.400000005960464"
+    drawColoredMarkers = TRUE
+    markerColor = "1 1 1"
+    selectedMarkerColor = "1 0.5 0.5"
+    selectedTriangleSize = 8
+    triangleSize = 6
+    useAntiAliasing = TRUE
+  }
+}
+module TestPattern {
+  internal {
+    frame = "1177 1293 112 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1076 825 285 443"
+        relativePosition = "-0.1456 0.0934"
+        sizeHint = "285 443"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = TestPattern
+    sizeX = 128
+    sizeY = 128
+    sizeZ = 128
+    sizeC = 1
+    sizeT = 1
+    sizeU = 1
+    dataType = "unsigned int8"
+    fillValue = 255
+    autoApply = TRUE
+    pattern = XRamp
+    voxelSize = "1 1 1"
+    gradient = "0 0 0"
+    eigenValues = "1 0 -1"
+    offDiagonalElements = "0 0 0"
+    fillValue2 = 0
+    pageSizeX = 32
+    pageSizeY = 32
+    pageSizeZ = 1
+    pageSizeC = 1
+    pageSizeT = 1
+    pageSizeU = 1
+  }
+}
+module EllipsoidTestPattern {
+  internal {
+    frame = "1409 1341 144 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1482 834 265 514"
+        relativePosition = "-0.0305 0.0999"
+        sizeHint = "265 514"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = EllipsoidTestPattern
+    sizeX = 128
+    sizeY = 128
+    sizeZ = 128
+    sizeC = 1
+    sizeT = 1
+    sizeU = 1
+    dataType = "unsigned int8"
+    fillValue = 0
+    autoApply = TRUE
+    pattern = XStripes
+    voxelSize = "1 1 1"
+    gradient = "0 0 0"
+    eigenValues = "1 0 -1"
+    offDiagonalElements = "0 0 0"
+    fillValue2 = 255
+    pageSizeX = 32
+    pageSizeY = 32
+    pageSizeZ = 1
+    pageSizeC = 1
+    pageSizeT = 1
+    pageSizeU = 1
+    mode = Ellipse
+    circlePos = "128 128 0"
+    circleExt = "50 5 5"
+    useCenterPos = TRUE
+    coneTipPos = "128 128 0"
+    coneDir = "1 0 0"
+    coneAngle = 45
+    coneHeight = 32
+    coneTipRadius = 0
+    coneDisplaceTip = TRUE
+  }
+}
+module SoLUTEditor {
+  internal {
+    frame = "1573 841 104 64"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1508 157 513 459"
+        relativePosition = "0.0131 -0.3865"
+        sizeHint = "513 459"
+        wasOpen = yes
+      }
+    }
+  }
+  fields {
+    instanceName = BaseLUT
+    rangeMin = 0
+    rangeMax = 2392
+    viewMin = 0
+    viewMax = 2392
+    window = 1
+    level = 0.5
+    allowNewPoints = TRUE
+    updateLutWhileDragging = TRUE
+    relativeLut = FALSE
+    colorInterpolation = InterpolateRGB
+    colorPoints = "[ 0 0.341176986694336 0.341176986694336 0.560783982276917, 538.200012207031 0.341176986694336 0.341176986694336 0.560783982276917, 812.283325195312 0.341176986694336 0.341176986694336 0.560783982276917, 1146.16662597656 0.725489974021912 0.101961001753807 0.0823528990149498, 1200.98327636719 1 0.666666984558105 0, 1255.80004882812 0.874509990215302 0.717647016048431 0.533333003520966, 1699.31665039062 0.946657299995422 0.879978716373444 0.801631331443787, 2392 1 1 1 ]"
+    alphaPoints = "[ 0 0, 538.200012207031 0, 812.283325195312 0, 1146.16662597656 0, 1200.98327636719 0.49079754948616, 1255.80004882812 0.680981576442719, 1699.31665039062 1, 2392 1 ]"
+    alphaFactor = 1
+    newRangeMin = 0
+    newRangeMax = 3085
+    newRangeMode = ClipFormerLUT
+    colorEditorHeight = 24
+    showColorEditor = TRUE
+    showAlphaEditor = TRUE
+    markerRadius = 4
+    selectedMarkerRadius = 6
+    snapMarkerRadius = 10
+    alphaLineWidth = 2
+    backgroundColor = "0.800000011920929 0.800000011920929 0.800000011920929"
+    marginColor = "0.830999970436096 0.815999984741211 0.783999979496002"
+    borderColor = "0 0 0"
+    alphaLineColor = "0 0 0"
+    histogramColor = "0.400000005960464 0.400000005960464 0.400000005960464"
+    drawColoredMarkers = TRUE
+    markerColor = "1 1 1"
+    selectedMarkerColor = "1 0.5 0.5"
+    selectedTriangleSize = 8
+    triangleSize = 6
+    useAntiAliasing = TRUE
+  }
+}
+connections {
+  gaussian_splatting_export.image = Arithmetic2.output0
+  gaussian_splatting_export.mask = Arithmetic2.output0
+  gaussian_splatting_export.scene = View3D.self
+  Arithmetic2.input0 = LoadNIfTI.outImage
+  Arithmetic2.input1 = LoadNIfTI1.outImage
+  View3D.inImage = Arithmetic2.output0
+  View3D.inInvPostLUT = BaseLUT.outInventorLUT
+  MinMaxScan.input0 = Arithmetic2.output0
+  SoLUTEditor.newRangeMin = MinMaxScan.trueMinValue
+  SoLUTEditor.newRangeMax = MinMaxScan.trueMaxValue
+  BaseLUT.newRangeMin = MinMaxScan.trueMinValue
+  BaseLUT.newRangeMax = MinMaxScan.trueMaxValue
+}
+networkModel = ""

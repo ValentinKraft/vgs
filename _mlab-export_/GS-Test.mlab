@@ -1,0 +1,1921 @@
+// MDL v1 utf8
+mevislabVersion = 4.2.70.857
+network {
+  watchlist = ""
+}
+module RunPythonScript {
+  internal {
+    frame = "1717 481 232 64"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "290 144 836 989"
+        relativePosition = "-0.1312 -0.3741"
+        sizeHint = "628 303"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = ExportForCinematicGaussians
+    in0 = ""
+    in1 = ""
+    in2 = ""
+    in3 = ""
+    in4 = ""
+    in5 = ""
+    in6 = ""
+    in7 = ""
+    in8 = ""
+    in9 = ""
+    inBaseComment = inBase
+    inComment0 = in0
+    inComment1 = in1
+    inComment2 = in2
+    inComment3 = in3
+    inComment4 = in4
+    inComment5 = in5
+    inComment6 = in6
+    inComment7 = in7
+    inComment8 = in8
+    inComment9 = in9
+    autoUpdate = TRUE
+    autoApply0 = TRUE
+    autoApply1 = TRUE
+    autoApply2 = TRUE
+    autoApply3 = TRUE
+    autoApply4 = TRUE
+    autoApply5 = TRUE
+    autoApply6 = TRUE
+    autoApply7 = TRUE
+    autoApply8 = TRUE
+    autoApply9 = TRUE
+    out0 = ""
+    out1 = ""
+    out2 = ""
+    out3 = ""
+    out4 = ""
+    out5 = ""
+    out6 = ""
+    out7 = ""
+    out8 = ""
+    out9 = ""
+    outComment0 = out0
+    outComment1 = out1
+    outComment2 = out2
+    outComment3 = out3
+    outComment4 = out4
+    outComment5 = out5
+    outComment6 = out6
+    outComment7 = out7
+    outComment8 = out8
+    outComment9 = out9
+    initCode = "# For backward compatibility, set up CTX as alias for ctx
+CTX = ctx # ctx is the network's context, not RunPythonScript's"
+    wakeUpCode = ""
+    code = "*import random
+import os
+import json
+import numpy as np
+
+extent = 1000
+output_path = "C:/DEV/TESTS/gs/cinematic-gaussians/scene"
+camera_angle_x_deg = 45.0  # Horizontaler Öffnungswinkel in Grad
+transforms = {
+    "camera_angle_x": np.deg2rad(camera_angle_x_deg),
+    "w": 2048,
+    "h": 2048,
+    "frames": []
+}
+
+for i in range(50):
+  x = random.randint(-extent,extent)
+  y = random.randint(-extent,extent)
+  z = random.randint(-extent,extent)
+  ctx.field("RotateAtTarget.inPosition").setValue([x,y,z])
+  ctx.field("RotateAtTarget.update").touch()
+  ctx.field("OffscreenRenderer.update").touch()
+  ctx.field("ImageSave.filename").setValue(f"{output_path}/images/{i}.jpg")
+  ctx.field("ImageSave.save").touch()
+  
+  # export camera pose data
+  view = ctx.field("SoCameraAccess.viewingMatrix").value
+  view_matrix = np.array(view).reshape((4, 4))
+  world_matrix = np.linalg.inv(view_matrix).transpose()
+  
+  #print("Translation =", world_matrix[:3, 3])
+
+  transforms["frames"].append({
+        "file_path": f"{i}.jpg",  # relativer Pfad im Zielrepo
+        "transform_matrix": world_matrix.tolist()
+    })
+
+
+# === JSON schreiben ===
+with open(os.path.join(output_path, "transforms.json"), "w") as f:
+    json.dump(transforms, f, indent=4)
+
+print(f"data exported to {output_path}")*"
+    finalizeCode = ""
+    showFields = FALSE
+    showInitCode = FALSE
+    showWakeUpCode = FALSE
+    showCode = TRUE
+    showFinalizeCode = FALSE
+    showConsole = FALSE
+  }
+}
+module RunPythonScript {
+  internal {
+    frame = "1721 561 160 64"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "673 202 947 1056"
+        relativePosition = "-0.1666 -0.3542"
+        sizeHint = "628 303"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = ExportForGS
+    in0 = ""
+    in1 = ""
+    in2 = ""
+    in3 = ""
+    in4 = ""
+    in5 = ""
+    in6 = ""
+    in7 = ""
+    in8 = ""
+    in9 = ""
+    inBaseComment = inBase
+    inComment0 = in0
+    inComment1 = in1
+    inComment2 = in2
+    inComment3 = in3
+    inComment4 = in4
+    inComment5 = in5
+    inComment6 = in6
+    inComment7 = in7
+    inComment8 = in8
+    inComment9 = in9
+    autoUpdate = TRUE
+    autoApply0 = TRUE
+    autoApply1 = TRUE
+    autoApply2 = TRUE
+    autoApply3 = TRUE
+    autoApply4 = TRUE
+    autoApply5 = TRUE
+    autoApply6 = TRUE
+    autoApply7 = TRUE
+    autoApply8 = TRUE
+    autoApply9 = TRUE
+    out0 = ""
+    out1 = ""
+    out2 = ""
+    out3 = ""
+    out4 = ""
+    out5 = ""
+    out6 = ""
+    out7 = ""
+    out8 = ""
+    out9 = ""
+    outComment0 = out0
+    outComment1 = out1
+    outComment2 = out2
+    outComment3 = out3
+    outComment4 = out4
+    outComment5 = out5
+    outComment6 = out6
+    outComment7 = out7
+    outComment8 = out8
+    outComment9 = out9
+    initCode = "# For backward compatibility, set up CTX as alias for ctx
+CTX = ctx # ctx is the network's context, not RunPythonScript's"
+    wakeUpCode = ""
+    code = "*import random
+import os
+import json
+import numpy as np
+
+from scipy.spatial.transform import Rotation as R
+
+out_path = "C:/DEV/TESTS/gs/gaussian-splatting/_scene_"
+transforms = {
+    "camera_angle_x": 0.785398,
+    "w": 1024,
+    "h": 1024,
+    "frames": []
+}
+
+def quaternion_from_matrix(matrix):
+    return R.from_matrix(matrix[:3, :3]).as_quat()  # x, y, z, w
+    
+def access_image(node):
+    image = ctx.field(node).image()
+    if not image:
+        print("Kein Bild gefunden.")
+        return
+
+    # Hole gesamten Bildbereich (Tile)
+    tile = image.getTile((0, 0, 0, 0, 0, 0), image.imageExtent())
+    if tile is None:
+        print("Tile nicht gefunden.")
+        return
+
+    return image, tile
+    
+def generate_pca_covariances(voxel_coords, arr, spacing, neighborhood_size=3):
+    covariances = []
+    rotations = []
+    scalings = []
+
+    # Pad array to handle edge cases
+    padded = np.pad(arr, neighborhood_size, mode='constant', constant_values=0)
+    offset = neighborhood_size
+
+    for coord in voxel_coords:
+        z, y, x = coord
+        # Local neighborhood window
+        z0, z1 = z, z + 2 * neighborhood_size + 1
+        y0, y1 = y, y + 2 * neighborhood_size + 1
+        x0, x1 = x, x + 2 * neighborhood_size + 1
+
+        local_patch = padded[z0:z1, y0:y1, x0:x1]
+        # Get non-zero voxels as weighted points
+        local_points = []
+        for dz in range(local_patch.shape[0]):
+            for dy in range(local_patch.shape[1]):
+                for dx in range(local_patch.shape[2]):
+                    val = local_patch[dz, dy, dx]
+                    if val > 0:
+                        # Voxel position in original array space
+                        pz = (z + dz - neighborhood_size) * spacing[2]
+                        py = (y + dy - neighborhood_size) * spacing[1]
+                        px = (x + dx - neighborhood_size) * spacing[0]
+                        local_points.append([px, py, pz])
+
+        local_points = np.array(local_points)
+        if local_points.shape[0] < 3:
+            # Not enough points for PCA
+            covariances.append(np.eye(3))
+            rotations.append(np.eye(3))
+            scalings.append(np.array([1, 1, 1]))
+            continue
+
+        # PCA: subtract mean, compute SVD
+        mean = np.mean(local_points, axis=0)
+        centered = local_points - mean
+        U, S, Vt = np.linalg.svd(centered, full_matrices=False)
+        rotation = Vt.T  # columns are principal axes
+        scaling = S / np.sum(S)  # normalize scaling for visualization
+
+        # Covariance can be reconstructed as: rotation @ diag(scaling) @ rotation.T
+        covariances.append(rotation @ np.diag(scaling**2) @ rotation.T)
+        rotations.append(rotation)
+        scalings.append(scaling)
+
+    return covariances, rotations, scalings
+    
+def generate_weighted_splats_from_image(num_points=5000, output_path="points3D.txt"):
+  
+    output_path += "/sparse/0/points3D.txt"
+    
+    image, tile = access_image("Vesselness.output0")
+    dicom_img, dicom_tile = access_image("SubImage.output0")
+
+    # In NumPy-Array umwandeln
+    arr = np.array(tile, dtype=np.float32)
+    
+    # Falls zusätzliche Dimensionen existieren, diese entfernen
+    while arr.ndim > 3:
+      arr = arr[0]
+
+    # Bildgrößen und Weltinformationen
+    dims = image.imageExtent()[1:4]  # (x,y,z)
+    spacing = image.voxelSize()
+    print(f"Spacing: {spacing}")
+    m = image.voxelToWorldMatrix()#.getTranslation()
+    origin = [m[0][3],m[1][3],m[2][3]]
+    print(f"Origin: {origin}")
+
+    # Wahrscheinlichkeitsverteilung erstellen (z. B. Werte > 0)
+    arr_flat = arr.flatten()
+    arr_flat[arr_flat < 0] = 0  # nur positive Werte erlauben
+    total = np.sum(arr_flat)
+    if total == 0:
+        print("Alle Bildwerte sind 0.")
+        return
+    probs = arr_flat / total
+
+    # Indexpositionen für Sampling
+    all_indices = np.arange(len(arr_flat))
+
+    # Ziehe Indizes gemäß Gewichtung
+    chosen_indices = np.random.choice(all_indices, size=num_points, replace=False, p=probs)
+
+    # Berechne Voxel-Koordinaten (z,y,x Reihenfolge beachten!)
+    coords = np.unravel_index(chosen_indices, arr.shape)
+    voxel_coords = np.stack(coords, axis=-1)  # (z, y, x)
+    
+    covs, rots, scales = generate_pca_covariances(voxel_coords, arr, spacing)
+
+    # points3D.txt schreiben
+    with open(output_path, "w") as f:
+        f.write("# 3D point list with one line per point:\\n")
+        f.write("# POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX)\\n")
+
+        for i, (z, y, x) in enumerate(voxel_coords, 1):
+            # Weltkoordinaten berechnen
+            wx = (origin[0] + x * spacing[0] ) / 100.0
+            wy = (origin[1] + y * spacing[1] ) / -100.0
+            wz = (origin[2] + z * spacing[2] ) / -100.0
+            #wx = random.uniform(-0.2,0.2)
+            #wy = random.uniform(-0.2,0.2)
+            #wz = random.uniform(-0.2,0.2)
+
+            # Farbe zufällig oder abhängig vom Bildwert
+            #r = random.randint(100, 255)
+            #g = random.randint(100, 255)
+            #b = random.randint(100, 255)
+            r = dicom_tile[0,0,0,z,y,x]
+            g = dicom_tile[0,0,0,z,y,x]
+            b = dicom_tile[0,0,0,z,y,x]
+
+            f.write(f"{i} {wx:.6f} {wy:.6f} {wz:.6f} {r} {g} {b} 0.0 1 1 2 1\\n")
+
+    print(f"[✓] {num_points} gewichtete Punkte aus Bild gespeichert nach: {output_path}")
+
+def render_images_and_generate_cameras_txt(num_imgs=100, output_path="", extent=100):
+  
+  image_width = transforms["w"]
+  image_height = transforms["h"]
+  focal_length = (image_width / 2) / np.tan(transforms["camera_angle_x"] / 2)
+  camera_id = 1
+  
+  # render random cams and render images
+  with open(os.path.join(output_path+"/sparse/0", "images.txt"), "w") as f:
+    
+    f.write("# Image list with two lines of data per image:\\n")
+    f.write("#   IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, IMAGE_NAME\\n")
+    f.write("#   POINTS2D[] as (X, Y, POINT3D_ID)\\n")
+
+    for i in range(num_imgs):
+      #x = random.randint(-extent,extent)
+      #y = random.randint(-extent,extent)
+      #z = random.randint(-extent,extent)
+      
+      radius = extent
+      theta = random.uniform(0, 2 * np.pi)       # Azimut
+      phi = random.uniform(0.2 * np.pi, 0.8 * np.pi)  # Polarwinkel, um nicht nur oben/unten zu landen
+
+      x = radius * np.sin(phi) * np.cos(theta)
+      y = radius * np.sin(phi) * np.sin(theta)
+      z = radius * np.cos(phi)
+      
+      ctx.field("RotateAtTarget.inPosition").setValue([x,y,z])
+      ctx.field("RotateAtTarget.update").touch()
+      ctx.field("OffscreenRenderer.update").touch()
+      ctx.field("ImageSave.filename").setValue(f"{output_path}/images/{i}.jpg")
+      ctx.field("ImageSave.save").touch()
+
+      rot = ctx.field("RotateAtTarget.outQuaternionRotation").value
+      
+      # Original Quaternion von Kamera zu Welt
+      #q_wc = [rot[3], rot[0], rot[1], rot[2]]
+      r_wc = R.from_quat([rot[0], -rot[1], -rot[2], rot[3]])  # [x, y, z, w]
+      
+      r_cw = r_wc.inv()
+      
+      qx, qy, qz, qw = r_cw.as_quat()
+
+      # Kamerazentrum
+      C = np.array([x, -y, -z])
+      t = -r_cw.as_matrix() @ C
+      
+      f.write(f"{i+1} {qw} {qx} {qy} {qz} {t[0]/10.0} {t[1]/10.0} {t[2]/10.0} {camera_id} {i}.jpg\\n")
+  
+  print(f"data exported to {output_path}")
+  
+##############################################
+
+generate_weighted_splats_from_image(
+    num_points=100000,
+    output_path=out_path
+)
+render_images_and_generate_cameras_txt(100,out_path,70)*"
+    finalizeCode = ""
+    showFields = FALSE
+    showInitCode = FALSE
+    showWakeUpCode = FALSE
+    showCode = TRUE
+    showFinalizeCode = FALSE
+    showConsole = FALSE
+  }
+}
+module RunPythonScript {
+  internal {
+    frame = "1717 657 184 64"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1432 338 826 981"
+        relativePosition = "0.0363 -0.2565"
+        sizeHint = "628 303"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = ExportRandomPoints
+    in0 = ""
+    in1 = ""
+    in2 = ""
+    in3 = ""
+    in4 = ""
+    in5 = ""
+    in6 = ""
+    in7 = ""
+    in8 = ""
+    in9 = ""
+    inBaseComment = inBase
+    inComment0 = in0
+    inComment1 = in1
+    inComment2 = in2
+    inComment3 = in3
+    inComment4 = in4
+    inComment5 = in5
+    inComment6 = in6
+    inComment7 = in7
+    inComment8 = in8
+    inComment9 = in9
+    autoUpdate = TRUE
+    autoApply0 = TRUE
+    autoApply1 = TRUE
+    autoApply2 = TRUE
+    autoApply3 = TRUE
+    autoApply4 = TRUE
+    autoApply5 = TRUE
+    autoApply6 = TRUE
+    autoApply7 = TRUE
+    autoApply8 = TRUE
+    autoApply9 = TRUE
+    out0 = ""
+    out1 = ""
+    out2 = ""
+    out3 = ""
+    out4 = ""
+    out5 = ""
+    out6 = ""
+    out7 = ""
+    out8 = ""
+    out9 = ""
+    outComment0 = out0
+    outComment1 = out1
+    outComment2 = out2
+    outComment3 = out3
+    outComment4 = out4
+    outComment5 = out5
+    outComment6 = out6
+    outComment7 = out7
+    outComment8 = out8
+    outComment9 = out9
+    initCode = "# For backward compatibility, set up CTX as alias for ctx
+CTX = ctx # ctx is the network's context, not RunPythonScript's"
+    wakeUpCode = ""
+    code = "*import random
+
+def generate_random_colmap_points3d(
+    num_points: int = 1000,
+    output_path: str = "points3D.txt",
+    xyz_range: float = 10.0,
+    default_error: float = 0.0
+):
+    with open(output_path, 'w') as f:
+        f.write("# 3D point list with one line per point:\\n")
+        f.write("# POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX)\\n")
+
+        for point_id in range(1, num_points + 1):
+            # Zufällige Koordinaten im gewählten Bereich
+            x = random.uniform(-xyz_range, xyz_range)
+            y = random.uniform(-xyz_range, xyz_range)
+            z = random.uniform(-xyz_range, xyz_range)
+
+            # Zufällige Farbe (COLMAP erwartet 0–255)
+            r = random.randint(0, 255)
+            g = random.randint(0, 255)
+            b = random.randint(0, 255)
+
+            # Dummy-Track: referenziert Bild-ID 1 und Punktindex 0
+            track = "1 0"
+
+            line = f"{point_id} {x} {y} {z} {r} {g} {b} {default_error} {track}\\n"
+            f.write(line)
+
+    print(f"COLMAP points3D.txt mit {num_points} Punkten gespeichert unter: {output_path}")
+
+
+
+generate_random_colmap_points3d(
+    num_points=5000,
+    output_path="C:/DEV/TESTS/gs/_scene_/sparse/0/points3D.txt",
+    xyz_range=1.0
+)*"
+    finalizeCode = ""
+    showFields = FALSE
+    showInitCode = FALSE
+    showWakeUpCode = FALSE
+    showCode = TRUE
+    showFinalizeCode = FALSE
+    showConsole = FALSE
+  }
+}
+module RunPythonScript {
+  internal {
+    frame = "1721 737 160 64"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "398 185 1022 1143"
+        relativePosition = "-0.2358 -0.3664"
+        sizeHint = "628 303"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = ExportMaskPoints
+    in0 = ""
+    in1 = ""
+    in2 = ""
+    in3 = ""
+    in4 = ""
+    in5 = ""
+    in6 = ""
+    in7 = ""
+    in8 = ""
+    in9 = ""
+    inBaseComment = inBase
+    inComment0 = in0
+    inComment1 = in1
+    inComment2 = in2
+    inComment3 = in3
+    inComment4 = in4
+    inComment5 = in5
+    inComment6 = in6
+    inComment7 = in7
+    inComment8 = in8
+    inComment9 = in9
+    autoUpdate = TRUE
+    autoApply0 = TRUE
+    autoApply1 = TRUE
+    autoApply2 = TRUE
+    autoApply3 = TRUE
+    autoApply4 = TRUE
+    autoApply5 = TRUE
+    autoApply6 = TRUE
+    autoApply7 = TRUE
+    autoApply8 = TRUE
+    autoApply9 = TRUE
+    out0 = ""
+    out1 = ""
+    out2 = ""
+    out3 = ""
+    out4 = ""
+    out5 = ""
+    out6 = ""
+    out7 = ""
+    out8 = ""
+    out9 = ""
+    outComment0 = out0
+    outComment1 = out1
+    outComment2 = out2
+    outComment3 = out3
+    outComment4 = out4
+    outComment5 = out5
+    outComment6 = out6
+    outComment7 = out7
+    outComment8 = out8
+    outComment9 = out9
+    initCode = "# For backward compatibility, set up CTX as alias for ctx
+CTX = ctx # ctx is the network's context, not RunPythonScript's"
+    wakeUpCode = ""
+    code = "*import random
+import numpy as np
+
+def generate_weighted_splats_from_image(num_points=5000, output_path="points3D.txt"):
+    image = ctx.field("Vesselness.output0").image()
+    if not image:
+        print("Kein Bild gefunden.")
+        return
+
+    # Hole gesamten Bildbereich (Tile)
+    tile = image.getTile((0, 0, 0, 0, 0, 0), image.imageExtent())
+    if tile is None:
+        print("Tile nicht gefunden.")
+        return
+
+    # In NumPy-Array umwandeln
+    arr = np.array(tile, dtype=np.float32)
+    
+    # Falls zusätzliche Dimensionen existieren, diese entfernen
+    while arr.ndim > 3:
+      arr = arr[0]
+
+    # Bildgrößen und Weltinformationen
+    dims = image.imageExtent()[1:4]  # (x,y,z)
+    spacing = image.voxelSize()
+    print(f"Spacing: {spacing}")
+    m = image.voxelToWorldMatrix()#.getTranslation()
+    origin = [m[0][3],m[1][3],m[2][3]]
+    print(f"Origin: {origin}")
+
+    # Wahrscheinlichkeitsverteilung erstellen (z. B. Werte > 0)
+    arr_flat = arr.flatten()
+    arr_flat[arr_flat < 0] = 0  # nur positive Werte erlauben
+    total = np.sum(arr_flat)
+    if total == 0:
+        print("Alle Bildwerte sind 0.")
+        return
+    probs = arr_flat / total
+
+    # Indexpositionen für Sampling
+    all_indices = np.arange(len(arr_flat))
+
+    # Ziehe Indizes gemäß Gewichtung
+    chosen_indices = np.random.choice(all_indices, size=num_points, replace=False, p=probs)
+
+    # Berechne Voxel-Koordinaten (z,y,x Reihenfolge beachten!)
+    coords = np.unravel_index(chosen_indices, arr.shape)
+    voxel_coords = np.stack(coords, axis=-1)  # (z, y, x)
+
+    # points3D.txt schreiben
+    with open(output_path, "w") as f:
+        f.write("# 3D point list with one line per point:\\n")
+        f.write("# POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX)\\n")
+
+        for i, (z, y, x) in enumerate(voxel_coords, 1):
+            # Weltkoordinaten berechnen
+            wx = (origin[0] + x) /-1000.0 * spacing[0]
+            wy = (origin[1] + y) /-1000.0 * spacing[1]
+            wz = (origin[2] + z) /-1000.0 * spacing[2]
+
+            # Farbe zufällig oder abhängig vom Bildwert
+            r = random.randint(0, 255)
+            g = random.randint(0, 255)
+            b = random.randint(0, 255)
+
+            f.write(f"{i} {wx:.6f} {wy:.6f} {wz:.6f} {r} {g} {b} 0.0 1 0\\n")
+
+    print(f"[✓] {num_points} gewichtete Punkte aus Bild gespeichert nach: {output_path}")
+
+
+
+generate_weighted_splats_from_image(
+    num_points=5000,
+    output_path="C:/DEV/TESTS/gs/_scene_/sparse/0/points3D.txt"
+)*"
+    finalizeCode = ""
+    showFields = FALSE
+    showInitCode = FALSE
+    showWakeUpCode = FALSE
+    showCode = TRUE
+    showFinalizeCode = FALSE
+    showConsole = FALSE
+  }
+}
+module gaussian_splatting_export {
+  internal {
+    frame = "949 309 184 56"
+    moduleGroupName = ""
+    localMacro = 1
+    windows {
+      window _default {
+        geometry = "470 352 492 238"
+        relativePosition = "-0.2919 -0.2464"
+        sizeHint = "248 206"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = gaussian_splatting_export
+    numPoints = 100000
+    numImages = 500
+    outputPath = "C:\\DEV\\TESTS\\gs\\_SCENES_\\_scene_"
+    smartInit = FALSE
+    renderOnly = TRUE
+    renderResolution = "1024 1024"
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "793 1165 128 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1503 613 420 274"
+        relativePosition = "-0.0020 -0.0589"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/minict.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "781 1253 184 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1085 271 420 274"
+        relativePosition = "-0.1235 -0.3046"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI1
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/minimask-binary3.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module Arithmetic2 {
+  internal {
+    frame = "809 1061 96 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1541 700 353 97"
+        relativePosition = "-0.0006 0.0036"
+        sizeHint = "353 97"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = Arithmetic2
+    function = Multiply
+    outputImageSize = InvalidateOutputIfSizesDiffer
+    constant = 0
+    autoReplicate = FALSE
+  }
+}
+module View3D {
+  internal {
+    frame = "1129 469 144 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1642 220 1555 1121"
+        relativePosition = "0.2035 -0.3412"
+        sizeHint = "1005 629"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = View3D
+    autoViewAll = TRUE
+    inventorInputOn = TRUE
+    inventorOutputOn = FALSE
+    lutType = Ramp
+    rendererType = RayCaster
+    currentTimePoint = 0
+    staticSamplingRate = 1
+    quality = 1
+    filterVolumeData = FilterLinear
+    lutEditorColorPoints = "[ 0 0 0 0, 4095 1 1 1 ]"
+    lutEditorAlphaPoints = "[ 0 0, 4095 1 ]"
+    lutEditorRelativeLut = FALSE
+    lutEditorColorInterpolation = InterpolateRGB
+    lutEditorAlphaFactor = 1
+    orientationProjectionType = PERSPECTIVE
+    orientationLocation = LOWER_RIGHT
+    orientationOn = FALSE
+    orientationModel = CUBE
+    greyCenter = 0.0225000008940697
+    greyWidth = 0.155000373721123
+    alphaFactor = 1
+    colorFactor = "1 1 1"
+    camType = TRUE
+    camProjectionType = CAMERA_PERSPECTIVE
+    camPosition = "71.1740112304688 -273.536560058594 -155.968841552734"
+    camOrientation = "0.980051279067993 -0.128848388791084 -0.151318907737732 1.63701236248016"
+    initialCameraOrientation = CAMERA_KEEP_AS_IS
+    camFar = 793.94318
+    camNear = 234.93042
+    camFocal = 514.15778
+    camHeight = 0.78539801
+    decoration = FALSE
+    annotations = FALSE
+    background = FALSE
+    mode = VolumeRendering
+    interactiveQuality = High
+  }
+  internalFields {
+    renderer.gradientQuality = GradientQualityHighest
+    renderer.enhancementAlphaMix = 0.25
+    renderer.boundaryEnhancement = FALSE
+    renderer.boundaryEnhancementFactor = 1
+    renderer.boundaryEnhancementExponent = 1
+    renderer.boundaryEnhancementGradientBias = 0
+    renderer.silhouetteEnhancement = FALSE
+    renderer.silhouetteEnhancementExponent = 1
+    renderer.silhouetteEnhancementFactor = 1
+    renderer.toneShading = FALSE
+    renderer.toneShadingWarmColor = "0.67451000213623 0.533333003520966 0.141176000237465"
+    renderer.toneShadingColdColor = "0 0 0.400000005960464"
+    renderer.toneShadingWarmDiffuse = 0.60000002
+    renderer.toneShadingColdDiffuse = 0.2
+    renderer.toneShadingAngle = 45
+    renderer.materialAmbient = 0.63
+    renderer.materialDiffuse = 1
+    renderer.materialSpecular = 1
+    renderer.materialSpecularity = 32
+    renderer.light1Enabled = FALSE
+    renderer.light1DiffuseIntensity = 1
+    renderer.light1SpecularIntensity = 1
+    renderer.light1Color = "1 1 1"
+    renderer.light1PolarPhi = 45
+    renderer.light1PolarRho = 0
+    renderer.light2Enabled = FALSE
+    renderer.light2DiffuseIntensity = 1
+    renderer.light2SpecularIntensity = 1
+    renderer.light2Color = "1 1 1"
+    renderer.light2PolarPhi = 0
+    renderer.light2PolarRho = 0
+    renderer.light3Enabled = FALSE
+    renderer.light3DiffuseIntensity = 1
+    renderer.light3SpecularIntensity = 1
+    renderer.light3Color = "1 1 1"
+    renderer.light3PolarPhi = -45
+    renderer.light3PolarRho = 0
+    renderer.sizeOutputX = 292
+    renderer.sizeOutputY = 292
+    renderer.sizeOutputZ = 180
+    renderer.subVolumeStartX = 0
+    renderer.subVolumeStartY = 0
+    renderer.subVolumeStartZ = 0
+    renderer.subVolumeEndX = 292
+    renderer.subVolumeEndY = 292
+    renderer.subVolumeEndZ = 180
+    clip.hideGeometry = FALSE
+    clip.on = FALSE
+    clip.left = FALSE
+    clip.right = FALSE
+    clip.top = FALSE
+    clip.bottom = FALSE
+    clip.rear = FALSE
+    clip.front = FALSE
+    clip.translation0 = "1 0 0"
+    clip.translation1 = "-1 0 0"
+    clip.translation2 = "0 1 0"
+    clip.translation3 = "0 -1 0"
+    clip.translation4 = "0 0 1"
+    clip.translation5 = "0 0 -1"
+    clip.rotation0 = "0 0 0.999999940395355 1.57079994678497"
+    clip.rotation1 = "0 0 -0.999999940395355 1.57079994678497"
+    clip.rotation2 = "0 0 -1 3.1415901184082"
+    clip.rotation3 = "0 0 1 0"
+    clip.rotation4 = "-0.999999940395355 0 0 1.57079994678497"
+    clip.rotation5 = "0.999999940395355 0 0 1.57079994678497"
+  }
+}
+module MinMaxScan {
+  internal {
+    frame = "1173 781 184 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1488 591 472 314"
+        relativePosition = "0.0012 -0.0747"
+        sizeHint = "449 314"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = MinMaxScan
+    updateMode = AutoUpdate
+    typeSelect = "Proposed Data Type"
+    preferredIntType = PreferUnsigned
+  }
+}
+module SoLUTEditor {
+  internal {
+    frame = "1309 685 104 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1018 911 513 459"
+        relativePosition = "-0.1294 0.1552"
+        sizeHint = "513 459"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = SoLUTEditor
+    rangeMin = -1024
+    rangeMax = 1512.3695
+    viewMin = -1024
+    viewMax = 1512.3695
+    window = 1
+    level = 0.5
+    allowNewPoints = TRUE
+    updateLutWhileDragging = TRUE
+    relativeLut = FALSE
+    colorInterpolation = InterpolateRGB
+    colorPoints = "[ -1024 0 0 0, 1.1160089969635 0.23137255012989 0.23137255012989 0.23137255012989, 397.423736572266 0.874509811401367 0.874509811401367 0.874509811401367, 1512.36950683594 1 1 1 ]"
+    alphaPoints = "[ -1024 0.00613496918231249, 1.1160089969635 0, 397.423736572266 1, 1512.36950683594 1 ]"
+    alphaFactor = 0.80000001
+    newRangeMin = -1024
+    newRangeMax = 1512.3695
+    newRangeMode = ClipFormerLUT
+    colorEditorHeight = 24
+    showColorEditor = TRUE
+    showAlphaEditor = TRUE
+    markerRadius = 4
+    selectedMarkerRadius = 6
+    snapMarkerRadius = 10
+    alphaLineWidth = 2
+    backgroundColor = "0.800000011920929 0.800000011920929 0.800000011920929"
+    marginColor = "0.830999970436096 0.815999984741211 0.783999979496002"
+    borderColor = "0 0 0"
+    alphaLineColor = "0 0 0"
+    histogramColor = "0.400000005960464 0.400000005960464 0.400000005960464"
+    drawColoredMarkers = TRUE
+    markerColor = "1 1 1"
+    selectedMarkerColor = "1 0.5 0.5"
+    selectedTriangleSize = 8
+    triangleSize = 6
+    useAntiAliasing = TRUE
+  }
+}
+module TestPattern {
+  internal {
+    frame = "1129 1437 112 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1076 825 285 443"
+        relativePosition = "-0.1456 0.0934"
+        sizeHint = "285 443"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = TestPattern
+    sizeX = 128
+    sizeY = 128
+    sizeZ = 128
+    sizeC = 1
+    sizeT = 1
+    sizeU = 1
+    dataType = "unsigned int8"
+    fillValue = 255
+    autoApply = TRUE
+    pattern = XRamp
+    voxelSize = "1 1 1"
+    gradient = "0 0 0"
+    eigenValues = "1 0 -1"
+    offDiagonalElements = "0 0 0"
+    fillValue2 = 0
+    pageSizeX = 32
+    pageSizeY = 32
+    pageSizeZ = 1
+    pageSizeC = 1
+    pageSizeT = 1
+    pageSizeU = 1
+  }
+}
+module EllipsoidTestPattern {
+  internal {
+    frame = "1345 1469 144 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1482 834 265 514"
+        relativePosition = "-0.0305 0.0999"
+        sizeHint = "265 514"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = EllipsoidTestPattern
+    sizeX = 128
+    sizeY = 128
+    sizeZ = 128
+    sizeC = 1
+    sizeT = 1
+    sizeU = 1
+    dataType = "unsigned int8"
+    fillValue = 0
+    autoApply = TRUE
+    pattern = XStripes
+    voxelSize = "1 1 1"
+    gradient = "0 0 0"
+    eigenValues = "1 0 -1"
+    offDiagonalElements = "0 0 0"
+    fillValue2 = 255
+    pageSizeX = 32
+    pageSizeY = 32
+    pageSizeZ = 1
+    pageSizeC = 1
+    pageSizeT = 1
+    pageSizeU = 1
+    mode = Ellipse
+    circlePos = "128 128 0"
+    circleExt = "50 5 5"
+    useCenterPos = TRUE
+    coneTipPos = "128 128 0"
+    coneDir = "1 0 0"
+    coneAngle = 45
+    coneHeight = 32
+    coneTipRadius = 0
+    coneDisplaceTip = TRUE
+  }
+}
+module SoLUTEditor {
+  internal {
+    frame = "1189 681 104 64"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1720 459 513 459"
+        relativePosition = "0.0747 -0.1695"
+        sizeHint = "513 459"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = BaseLUT
+    rangeMin = -1024
+    rangeMax = 3071
+    viewMin = -1024
+    viewMax = 3071
+    window = 1
+    level = 0.5
+    allowNewPoints = TRUE
+    updateLutWhileDragging = TRUE
+    relativeLut = FALSE
+    colorInterpolation = InterpolateRGB
+    colorPoints = "[ -1024 0.341176986694336 0.341176986694336 0.560783982276917, -498.914001464844 0.341176986694336 0.341176986694336 0.560783982276917, 99.0538024902344 0.474510014057159 0.0156862996518612 0, 130.449005126953 1 0.427450984716415 0.129411771893501, 204.5 1 0.780391991138458 0, 332.46875 0.956862986087799 0.84313702583313 0.705882012844086, 3071 1 1 1 ]"
+    alphaPoints = "[ -1024 0, -498.914001464844 0, 99.0538024902344 0, 130.449005126953 0.613497018814087, 204.5 0.717791438102722, 332.46875 0.797546029090881, 3071 0.987730026245117 ]"
+    alphaFactor = 1
+    newRangeMin = -1024
+    newRangeMax = 1512.3695
+    newRangeMode = ClipFormerLUT
+    colorEditorHeight = 24
+    showColorEditor = TRUE
+    showAlphaEditor = TRUE
+    markerRadius = 4
+    selectedMarkerRadius = 6
+    snapMarkerRadius = 10
+    alphaLineWidth = 2
+    backgroundColor = "0.800000011920929 0.800000011920929 0.800000011920929"
+    marginColor = "0.830999970436096 0.815999984741211 0.783999979496002"
+    borderColor = "0 0 0"
+    alphaLineColor = "0 0 0"
+    histogramColor = "0.400000005960464 0.400000005960464 0.400000005960464"
+    drawColoredMarkers = TRUE
+    markerColor = "1 1 1"
+    selectedMarkerColor = "1 0.5 0.5"
+    selectedTriangleSize = 8
+    triangleSize = 6
+    useAntiAliasing = TRUE
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "1017 1165 144 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1500 613 420 274"
+        relativePosition = "-0.0029 -0.0589"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI2
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/vshuman.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "1001 1253 192 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1083 270 420 274"
+        relativePosition = "-0.1241 -0.3053"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI3
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/vshuman_tsmasks2.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module Arithmetic2 {
+  internal {
+    frame = "1037 1061 104 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1541 700 353 97"
+        relativePosition = "-0.0006 0.0036"
+        sizeHint = "353 97"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = Arithmetic21
+    function = Multiply
+    outputImageSize = InvalidateOutputIfSizesDiffer
+    constant = 0
+    autoReplicate = FALSE
+  }
+}
+module Switch {
+  internal {
+    frame = "1073 909 144 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+  }
+  fields {
+    instanceName = Switch
+    currentInput = 2
+    numberOfInputs = 5
+  }
+}
+module DLLungVesselSegmentation {
+  internal {
+    frame = "373 773 216 56"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "627 312 479 443"
+        relativePosition = "-0.2480 -0.2751"
+        sizeHint = "398 443"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = DLLungVesselSegmentation
+    inGenericTileProcessorConfigFilename = $(MLAB_FMEstable_ReleaseMeVis)/Projects/TileProcessing/GenericTileProcessor/Modules/inference_provider_configs_FME/FME_LocalOnnxRuntime.yaml
+    inSelectedModel = fme.LungVesselsCT.LungLobes
+    inMinSegmentVolume_ml = 0
+    onInputChangeBehavior = Clear
+  }
+}
+module DLLiverVesselSegmentation {
+  internal {
+    frame = "437 581 216 56"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1928 400 448 817"
+        relativePosition = "0.1256 -0.2119"
+        sizeHint = "376 817"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = DLLiverVesselSegmentation
+    inOutputMode = Both
+    inLabelUnlabeledVessels = FALSE
+    inOutputRest = FALSE
+    inMinRootComponentLength = 100
+    inUseLiverMask = TRUE
+    inModel = FineIso_v2
+    inDefaultModality = CT
+    inForceDefaultModality = FALSE
+    inForceCPU = FALSE
+    inUseGenericTileProcessor = TRUE
+    inGenericTileProcessorConfigFilename = $(MLAB_FMEstable_ReleaseMeVis)/Projects/TileProcessing/GenericTileProcessor/Modules/inference_provider_configs_FME/FME_LocalOnnxRuntime.yaml
+    inDefaultTimeout_ms = 500
+    inPredictionTimeout_ms = 5000
+    inDisableResampling = TRUE
+    inAddTentativeComponents = FALSE
+    inUseNewPostprocessing = TRUE
+    onInputChangeBehavior = Clear
+  }
+}
+module DLMultiscalePVHVSegmentation {
+  internal {
+    frame = "273 669 240 56"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1551 569 482 360"
+        relativePosition = "0.0209 -0.0905"
+        sizeHint = "332 360"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = DLMultiscalePVHVSegmentation
+    inGenericTileProcessorConfigFilename = $(MLAB_FMEstable_ReleaseMeVis)/Projects/TileProcessing/GenericTileProcessor/Modules/inference_provider_configs_FME/FME_LocalOnnxRuntime.yaml
+    inDefaultTimeout_ms = 2000
+    inPredictionTimeout_ms = 90000
+    inKeepTileProcessorsLoaded = FALSE
+    onInputChangeBehavior = Clear
+  }
+}
+module DLLiverSegmentation {
+  internal {
+    frame = "381 1021 184 56"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1550 499 496 498"
+        relativePosition = "0.0227 -0.1408"
+        sizeHint = "332 498"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = DLLiverSegmentation
+    inUseGenericTileProcessor = TRUE
+    inGenericTileProcessorConfigFilename = $(MLAB_FMEstable_ReleaseMeVis)/Projects/TileProcessing/GenericTileProcessor/Modules/inference_provider_configs_FME/FME_LocalOnnxRuntime.yaml
+    inDefaultTimeout_ms = 500
+    inPredictionTimeout_ms = 5000
+    inForceCPU = FALSE
+    inDefaultModality = CT
+    inForceDefaultModality = FALSE
+    inRoughSegmentationOnly = FALSE
+    onInputChangeBehavior = Clear
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "225 1213 192 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "742 507 420 274"
+        relativePosition = "-0.0042 -0.0590"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI4
+    inFilename = C:/DATA/MISC/AbdomenCT-1k/Case_00004_0000.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module SaveNIfTI {
+  internal {
+    frame = "93 469 88 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "833 490 604 191"
+        relativePosition = "0.0911 -0.0738"
+        sizeHint = "213 191"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = SaveNIfTI
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/abdomen_case4_ts.nii.gz
+    inV2 = FALSE
+    inCompressionLevel = 6
+    inAuxiliaryFilename = ""
+    inIntentName = ""
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "1209 1157 160 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1497 613 420 274"
+        relativePosition = "-0.0038 -0.0589"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI5
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/abdomen1.5.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "1209 1253 176 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1081 270 420 274"
+        relativePosition = "-0.1247 -0.3053"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI6
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/abdomen1.5_ts2.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module Arithmetic2 {
+  internal {
+    frame = "1237 1061 104 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1541 700 353 97"
+        relativePosition = "-0.0006 0.0036"
+        sizeHint = "353 97"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = Arithmetic22
+    function = Multiply
+    outputImageSize = InvalidateOutputIfSizesDiffer
+    constant = 0
+    autoReplicate = FALSE
+  }
+}
+module TotalSegmentator {
+  internal {
+    frame = "121 893 160 56"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "662 409 600 527"
+        relativePosition = "0.0010 -0.1441"
+        sizeHint = "600 527"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = TotalSegmentator
+    onInputChangeBehavior = Clear
+    inModelVersion = v2
+    inSegmentOrgans = TRUE
+    inSegmentVertebrae = TRUE
+    inSegmentCardiac = FALSE
+    inSegmentMuscles = FALSE
+    inSegmentRibs = TRUE
+    inConfigFilename = $(MLAB_FMEstable_ReleaseMeVis)/Projects/TileProcessing/GenericTileProcessor/Modules/inference_provider_configs_FME/FME_LocalOnnxRuntime.yaml
+  }
+}
+module Resample3D {
+  internal {
+    frame = "213 1069 104 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1569 571 374 355"
+        relativePosition = "0.0105 -0.0891"
+        sizeHint = "324 355"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = Resample3D
+    keep = "Scale factor"
+    filter = Lanczos_3
+    isotropic = TRUE
+    filterAlways = FALSE
+    filterAlwaysTolerance = 0
+    zoom = "0.494791666666667 0.494791666666667 2"
+    imageSize = "253 253 314"
+    voxelSize = "1.5 1.5 1.5"
+    subVoxelShift = "0 0 0"
+    useReferenceImage = FALSE
+  }
+}
+module IntervalThreshold {
+  internal {
+    frame = "81 741 128 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1513 549 410 402"
+        relativePosition = "-0.0006 -0.1049"
+        sizeHint = "410 402"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = IntervalThreshold
+    lowerType = ImgOrig
+    innerType = UserDef
+    upperType = ImgOrig
+    centerWidthSet = FALSE
+    threshCenter = 19
+    threshWidth = 2.4
+    threshMin = 17.8
+    threshMax = 20.2
+    lowerUserValue = 1
+    innerUserValue = 0
+    upperUserValue = 1
+    changeMinMax = FALSE
+    changedMin = 0
+    changedMax = 1000
+  }
+}
+module Threshold {
+  internal {
+    frame = "109 597 88 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1594 602 282 297"
+        relativePosition = "0.0044 -0.0668"
+        sizeHint = "251 297"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = Threshold
+    threshold = 0
+    relativeThreshold = FALSE
+    comparisonOperator = Greater
+    conditionTrueWriteValue = UserDef
+    userConditionTrueValue = 1
+    conditionFalseWriteValue = UserDef
+    userConditionFalseValue = 0
+  }
+}
+module Histogram {
+  internal {
+    frame = "1397 869 120 56"
+    moduleGroupName = ""
+    showNetworkPanel = true
+  }
+  fields {
+    instanceName = Histogram
+    useMask = TRUE
+    xRange = "Image Min/Max"
+    maskMode = Weights
+    curveType = Line
+    curveStyle = 0
+    curveTitle = ""
+    updateMode = Off
+    useStepFunction = FALSE
+    useZeroAsBinCenter = TRUE
+    useBackgroundValue = FALSE
+    backgroundValue = 0
+    binSize = 1
+    maxBinCount = 25000000
+  }
+}
+module SoShowFPS {
+  internal {
+    frame = "917 829 104 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1616 654 227 192"
+        relativePosition = "0.0029 -0.0295"
+        sizeHint = "205 192"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = SoShowFPS
+    numAverageFrames = 30
+    drawFPS = TRUE
+    drawRepaintCount = FALSE
+    fontSize = 32
+    color = "0 1 0"
+    alpha = 1
+  }
+}
+module SaveNIfTI {
+  internal {
+    frame = "553 901 96 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "831 489 604 191"
+        relativePosition = "0.0901 -0.0747"
+        sizeHint = "213 191"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = SaveNIfTI1
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/abdomen_case4.nii.gz
+    inV2 = FALSE
+    inCompressionLevel = 6
+    inAuxiliaryFilename = ""
+    inIntentName = ""
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "1393 1149 160 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "741 507 420 274"
+        relativePosition = "-0.0047 -0.0590"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI7
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/abdomen_case4.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "1401 1245 192 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "509 223 420 274"
+        relativePosition = "-0.1255 -0.3056"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI8
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/abdomen_case4_ts.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module Arithmetic2 {
+  internal {
+    frame = "1421 1053 104 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1541 700 353 97"
+        relativePosition = "-0.0006 0.0036"
+        sizeHint = "353 97"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = Arithmetic23
+    function = Multiply
+    outputImageSize = InvalidateOutputIfSizesDiffer
+    constant = 0
+    autoReplicate = FALSE
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "1593 1141 176 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "739 507 420 274"
+        relativePosition = "-0.0057 -0.0590"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI9
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/abdomen_case6.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module LoadNIfTI {
+  internal {
+    frame = "1609 1237 192 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "508 222 420 274"
+        relativePosition = "-0.1260 -0.3064"
+        sizeHint = "420 274"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = LoadNIfTI10
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/abdomen_case6_ts.nii.gz
+    inApplyMode = AutoLoad
+  }
+}
+module Arithmetic2 {
+  internal {
+    frame = "1629 1045 104 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1541 700 353 97"
+        relativePosition = "-0.0006 0.0036"
+        sizeHint = "353 97"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = Arithmetic24
+    function = Multiply
+    outputImageSize = InvalidateOutputIfSizesDiffer
+    constant = 0
+    autoReplicate = FALSE
+  }
+}
+module SaveNIfTI {
+  internal {
+    frame = "1585 757 96 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1168 585 610 191"
+        relativePosition = "-0.0718 -0.0790"
+        sizeHint = "213 191"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = SaveNIfTI2
+    inFilename = C:/DEV/TESTS/gs/avis-gaussian-splatting/_input_/abdomen_case4_1.5_ts.nii.gz
+    inV2 = FALSE
+    inCompressionLevel = 6
+    inAuxiliaryFilename = ""
+    inIntentName = ""
+  }
+}
+module Resample3D {
+  internal {
+    frame = "1577 909 112 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1569 571 374 355"
+        relativePosition = "0.0105 -0.0891"
+        sizeHint = "324 355"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = Resample3D1
+    keep = "Scale factor"
+    filter = Lanczos_3
+    isotropic = TRUE
+    filterAlways = FALSE
+    filterAlwaysTolerance = 0
+    zoom = "0.494791666666667 0.494791666666667 2"
+    imageSize = "253 253 314"
+    voxelSize = "1.5 1.5 1.5"
+    subVoxelShift = "0 0 0"
+    useReferenceImage = FALSE
+  }
+}
+module ImagePropertyConvert {
+  internal {
+    frame = "-99 653 152 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1561 426 336 649"
+        relativePosition = "0.0026 -0.1932"
+        sizeHint = "317 649"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = ImagePropertyConvert
+    changeDimensionInfo = FALSE
+    cDimInfo = ""
+    tDimInfo = ""
+    uDimInfo = ""
+    a00 = 1
+    a01 = 0
+    a02 = 0
+    a03 = 0
+    a10 = 0
+    a11 = 1
+    a12 = 0
+    a13 = 0
+    a20 = 0
+    a21 = 0
+    a22 = 1
+    a23 = 0
+    a30 = 0
+    a31 = 0
+    a32 = 0
+    a33 = 1
+    worldMatrix = "1 0 0 0
+0 1 0 0
+0 0 1 0
+0 0 0 1"
+    changeDatatype = TRUE
+    datatype = "unsigned int8"
+    changePageSize = FALSE
+    pageSizeX = 32
+    pageSizeY = 32
+    pageSizeZ = 1
+    pageSizeC = 1
+    pageSizeT = 1
+    pageSizeU = 1
+    changeMinGrayValue = FALSE
+    minGrayValue = 0
+    changeMaxGrayValue = FALSE
+    maxGrayValue = 1
+    changeWorldMatrix = FALSE
+    voxelSizeX = 1
+    voxelSizeY = 1
+    voxelSizeZ = 1
+    autoApply = TRUE
+  }
+}
+module SoSwitch {
+  internal {
+    frame = "1269 565 136 72"
+    moduleGroupName = ""
+    showNetworkPanel = true
+    windows {
+      window _default {
+        geometry = "1633 708 198 85"
+        relativePosition = "0.0035 0.0093"
+        sizeHint = "172 85"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = SoSwitch
+    whichChild = 1
+  }
+}
+module SoLUTEditor {
+  internal {
+    frame = "1433 685 112 56"
+    moduleGroupName = ""
+    windows {
+      window _default {
+        geometry = "1463 474 513 459"
+        relativePosition = "0.0000 -0.1588"
+        sizeHint = "513 459"
+        wasOpen = no
+      }
+    }
+  }
+  fields {
+    instanceName = SoLUTEditor1
+    rangeMin = -100
+    rangeMax = 1512.3695
+    viewMin = -100
+    viewMax = 1512.3695
+    window = 1
+    level = 0.5
+    allowNewPoints = TRUE
+    updateLutWhileDragging = TRUE
+    relativeLut = FALSE
+    colorInterpolation = InterpolateRGB
+    colorPoints = "[ -100 0.682352960109711 0.133333340287209 0.890196084976196, 0.773094177246094 0.682352960109711 0.133333340287209 0.890196084976196, 44.4414367675781 0.564705908298492 0.239215686917305 0.835294127464294, 100.824630737305 0.474510014057159 0.0156862996518612 0, 176.695205688477 0.917647004127502 0.372548997402191 0.0235293991863728, 253.321838378906 1 0.780391991138458 0, 343.686004638672 0.956862986087799 0.84313702583313 0.705882012844086, 1035.97314453125 0.966070115566254 0.876617729663849 0.768658339977264, 1512.36950683594 0.966070115566254 0.876617729663849 0.768658339977264 ]"
+    alphaPoints = "[ -100 0, 0.773094177246094 0, 44.4414367675781 0.0674846619367599, 100.824630737305 0.0736196339130402, 176.695205688477 0.0920245423913002, 253.321838378906 0.711655974388123, 343.686004638672 0.822085916996002, 1035.97314453125 0.886394262313843, 1512.36950683594 0.886394262313843 ]"
+    alphaFactor = 1
+    newRangeMin = -100
+    newRangeMax = 1512.3695
+    newRangeMode = ClipFormerLUT
+    colorEditorHeight = 24
+    showColorEditor = TRUE
+    showAlphaEditor = TRUE
+    markerRadius = 4
+    selectedMarkerRadius = 6
+    snapMarkerRadius = 10
+    alphaLineWidth = 2
+    backgroundColor = "0.800000011920929 0.800000011920929 0.800000011920929"
+    marginColor = "0.830999970436096 0.815999984741211 0.783999979496002"
+    borderColor = "0 0 0"
+    alphaLineColor = "0 0 0"
+    histogramColor = "0.400000005960464 0.400000005960464 0.400000005960464"
+    drawColoredMarkers = TRUE
+    markerColor = "1 1 1"
+    selectedMarkerColor = "1 0.5 0.5"
+    selectedTriangleSize = 8
+    triangleSize = 6
+    useAntiAliasing = TRUE
+  }
+}
+connections {
+  gaussian_splatting_export.image = Switch.output0
+  gaussian_splatting_export.mask = Switch.output0
+  gaussian_splatting_export.scene = View3D.self
+  Arithmetic2.input0 = LoadNIfTI.outImage
+  Arithmetic2.input1 = LoadNIfTI1.outImage
+  View3D.inImage = Switch.output0
+  View3D.inInvPreLUT = SoShowFPS.self
+  View3D.inInvPostLUT = SoSwitch.self
+  MinMaxScan.input0 = Switch.output0
+  SoLUTEditor.inHistogram = Histogram.outputHistogramCurve
+  SoLUTEditor.newRangeMin = MinMaxScan.trueMinValue
+  SoLUTEditor.newRangeMax = MinMaxScan.trueMaxValue
+  BaseLUT.inHistogram = Histogram.outputHistogramCurve
+  BaseLUT.newRangeMin = MinMaxScan.trueMinValue
+  BaseLUT.newRangeMax = MinMaxScan.trueMaxValue
+  Arithmetic21.input0 = LoadNIfTI2.outImage
+  Arithmetic21.input1 = LoadNIfTI3.outImage
+  Switch.input0 = Arithmetic2.output0
+  Switch.input1 = Arithmetic21.output0
+  Switch.input2 = Arithmetic22.output0
+  Switch.input3 = Arithmetic23.output0
+  Switch.input4 = Arithmetic24.output0
+  DLLiverVesselSegmentation.inImage = Resample3D.output0
+  DLLiverVesselSegmentation.inLiver = DLLiverSegmentation.outImageMask
+  DLMultiscalePVHVSegmentation.inCT = Resample3D.output0
+  DLMultiscalePVHVSegmentation.inLiver = DLLiverSegmentation.outImageMask
+  DLLiverSegmentation.inImage = Resample3D.output0
+  SaveNIfTI.inImage = Threshold.output0
+  Arithmetic22.input0 = LoadNIfTI5.outImage
+  Arithmetic22.input1 = LoadNIfTI6.outImage
+  TotalSegmentator.input0 = Resample3D.output0
+  Resample3D.input0 = LoadNIfTI4.outImage
+  IntervalThreshold.input0 = TotalSegmentator.output0
+  Threshold.input0 = IntervalThreshold.output0
+  Histogram.input0 = Switch.output0
+  SaveNIfTI1.inImage = Resample3D.output0
+  Arithmetic23.input0 = LoadNIfTI7.outImage
+  Arithmetic23.input1 = LoadNIfTI8.outImage
+  Arithmetic24.input0 = LoadNIfTI9.outImage
+  Arithmetic24.input1 = LoadNIfTI10.outImage
+  SaveNIfTI2.inImage = Resample3D1.output0
+  Resample3D1.input0 = LoadNIfTI8.outImage
+  SoSwitch.children = "BaseLUT.outInventorLUT SoLUTEditor.outInventorLUT SoLUTEditor1.outInventorLUT"
+  SoLUTEditor1.inHistogram = Histogram.outputHistogramCurve
+}
+networkModel = ""

@@ -1,0 +1,60 @@
+Interface {
+  Inputs {
+    Field image {
+      internalName = InImage.input0
+    }
+    Field mask {
+      internalName = InMask.input0
+    }
+    Field scene {
+      internalName = InScene.child
+    }
+  }
+  Outputs {
+  }
+  Parameters {
+    Field update {
+      type = Trigger
+    }
+    Field numPoints {
+      type = Int
+      value = 100000
+    }
+    Field numImages {
+      type = Int
+      value = 100
+    }
+    Field outputPath {
+      type = String
+      value = "C:/"
+    }
+    Field smartInit {
+      type = Bool
+    }
+    Field renderOnly {
+      type = Bool
+    }
+    Field renderResolution {
+      internalName = OffscreenRenderer.size
+    }
+  }
+}
+
+Commands {
+  source = $(LOCAL)/gaussian_splatting_export.py
+}
+
+Window {
+  Box "Settings" {
+  Field numPoints { title = "Nr of initial splats/points"}
+  Field numImages {title = "Nr of rendered images"}
+    Field renderResolution {title = "Render resolution"}
+    Field renderOnly { title = "Render only" }
+    Field smartInit { title = "Smart initialization" }
+  Field outputPath {title = "Output path"}
+
+  Button update {
+    command = update
+  }
+  }
+}

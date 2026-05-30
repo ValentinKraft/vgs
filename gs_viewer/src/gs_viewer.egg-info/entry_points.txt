@@ -1,0 +1,2 @@
+[console_scripts]
+gs-viewer = gs_viewer.app:main

@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: gs-viewer
+Version: 0.1.0
+Summary: Standalone Gaussian PLY viewer (OpenGL)
+Requires-Python: >=3.10
+Requires-Dist: numpy>=1.24
+Requires-Dist: plyfile>=1.0.3
+Requires-Dist: glfw>=2.7.0
+Requires-Dist: PyOpenGL>=3.1.7
+Requires-Dist: imgui[glfw]>=2.0.0
