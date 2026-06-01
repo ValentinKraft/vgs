@@ -1,4 +1,4 @@
-# Avis Gaussian Splatting
+# Volumetric Gaussian Splatting: Direct Optimization in Voxel Space for Efficient Medical Data Visualization
 
 Avis Gaussian Splatting is a research fork of 3D Gaussian Splatting adapted for
 volume-supervised training on 3D medical-style data such as CT or MR volumes.
@@ -10,6 +10,28 @@ This README is written around the workflow implemented in this repository today:
 environment setup, volume and mask expectations, reference training commands,
 evaluation, export, and viewing. The legacy image-based 3DGS code path still
 exists in the tree, but the reproduction steps below target the volume pipeline.
+
+## Relation To The Original Paper
+
+This repository inherits its core representation from Kerbl et al.,
+"3D Gaussian Splatting for Real-Time Radiance Field Rendering". In the original paper,
+the task is novel-view synthesis from calibrated multi-view images.
+
+For readers coming from the paper, the main differences in this fork are:
+
+- Input data is a 3D volume plus aligned ROI mask, not calibrated multi-view
+  RGB images.
+- Gaussian initialization samples points from voxels inside the mask, rather
+  than from sparse SfM points produced during camera calibration.
+- Supervision is volumetric and mask-aware, using losses on rasterized voxel
+  grids rather than photometric losses on rendered camera views.
+- Evaluation is centered on masked volume metrics and exported PLY inspection,
+  rather than novel-view synthesis benchmarks.
+
+In other words, this codebase keeps the Gaussian parameterization and much of
+the optimization/export machinery familiar from 3DGS, but retargets training to
+masked 3D reconstruction from medical-style volumes rather than real-time
+free-viewpoint image rendering.
 
 ## What This Repository Does
 
@@ -61,7 +83,7 @@ Clone the repository with submodules:
 
 ```shell
 git clone --recursive <repo-url>
-cd avis-gaussian-splatting
+cd <repo-dir>
 ```
 
 If the repository is already cloned without submodules:
@@ -100,7 +122,8 @@ The main scripts used for reproduction are:
 | `evaluate_ply_masked_mse.py` | Evaluate an exported or external PLY with the same masked full-ROI path used during training |
 | `compare_volumes.py` | Compare two volumes inside a mask with masked MSE and PSNR |
 | `gs_viewer/` | Standalone viewer for Gaussian PLY exports |
-| `docs/volume_supervision.md` | Supplemental notes on the volume workflow |
+| `gaussian_splatting/data/volume_loader.py` | Input loading, normalization, and volume resampling logic |
+| `gaussian_splatting/utils/volume_supervisor.py` | Volume supervision, ROI handling, and masked evaluation logic |
 
 ## Data Requirements And Conventions
 
@@ -392,7 +415,11 @@ This project builds on the original 3D Gaussian Splatting work by Kerbl et al.
 
 - Paper and project page:
   <https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/>
+- Full citation:
+  Kerbl, Bernhard, Georgios Kopanas, Thomas Leimkuhler, and George Drettakis.
+  "3D Gaussian Splatting for Real-Time Radiance Field Rendering." ACM
+  Transactions on Graphics 42, no. 4 (2023).
 
 ## License
 
-See `LICENSE.md`.
+Based on original 3DGS repository, see `LICENSE.md`.
