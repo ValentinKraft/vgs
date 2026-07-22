@@ -1,3 +1,8 @@
+![header](preview.png)
+
+> [!NOTE]
+> The according paper will be published soon in CGI conference proceedings
+
 # Volumetric Gaussian Splatting: Direct Optimization in Voxel Space for Efficient Medical Data Visualization
 
 Avis Gaussian Splatting is a research fork of 3D Gaussian Splatting adapted for
